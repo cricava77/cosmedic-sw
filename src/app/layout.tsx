@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
 import "./globals.css";
 import Link from "next/link";
-
-const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "COSMEDIC SW",
@@ -15,7 +12,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="it">
-      <body className={inter.className}>
+      <body style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}>
         <div className="flex h-screen bg-gray-50">
           {/* Sidebar */}
           <aside className="w-64 bg-white border-r border-gray-200 p-6 flex flex-col shadow-lg">
