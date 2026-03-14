@@ -1,4 +1,4 @@
-import { supabase } from "./supabase";
+import { getSupabase } from "./supabase";
 import type { PatientInsert, AppointmentInsert, AppointmentStatus } from "./database.types";
 
 // ─── Patients ────────────────────────────────────────────
@@ -23,7 +23,7 @@ export async function addPatient(patient: PatientInsert) {
 }
 
 export async function deletePatient(id: string) {
-  const { error } = await supabase.from("patients").delete().eq("id", id);
+  const { error } = await getSupabase().from("patients").delete().eq("id", id);
   if (error) throw error;
 }
 
@@ -58,7 +58,7 @@ export async function updateAppointmentStatus(id: string, stato: AppointmentStat
 }
 
 export async function deleteAppointment(id: string) {
-  const { error } = await supabase.from("appointments").delete().eq("id", id);
+  const { error } = await getSupabase().from("appointments").delete().eq("id", id);
   if (error) throw error;
 }
 
@@ -69,9 +69,9 @@ export async function getDashboardStats() {
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
 
   const [patientsRes, todayApptRes, weekPatientsRes] = await Promise.all([
-    supabase.from("patients").select("id", { count: "exact", head: true }),
-    supabase.from("appointments").select("id", { count: "exact", head: true }).eq("data", today),
-    supabase.from("patients").select("id", { count: "exact", head: true }).gte("created_at", weekAgo),
+    getSupabase().from("patients").select("id", { count: "exact", head: true }),
+    getSupabase().from("appointments").select("id", { count: "exact", head: true }).eq("data", today),
+    getSupabase().from("patients").select("id", { count: "exact", head: true }).gte("created_at", weekAgo),
   ]);
 
   return {
