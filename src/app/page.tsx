@@ -3,7 +3,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Users, Calendar, TrendingUp, UserPlus, Activity, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 
@@ -35,16 +34,6 @@ const stats = [
     trend: "+5",
     trendUp: true,
   },
-];
-
-const chartData = [
-  { giorno: "Lun", visite: 24 },
-  { giorno: "Mar", visite: 18 },
-  { giorno: "Mer", visite: 32 },
-  { giorno: "Gio", visite: 27 },
-  { giorno: "Ven", visite: 21 },
-  { giorno: "Sab", visite: 15 },
-  { giorno: "Dom", visite: 8 },
 ];
 
 const recentPatients = [
@@ -105,67 +94,6 @@ export default function DashboardPage() {
           </Card>
         ))}
       </div>
-
-      {/* Chart */}
-      <Card className="bg-card rounded-xl shadow-sm border border-border/50">
-        <CardHeader>
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-teal-50 rounded-lg">
-              <TrendingUp className="w-5 h-5 text-teal-600" />
-            </div>
-            <div>
-              <CardTitle className="text-lg font-semibold text-foreground">Visite Settimanali</CardTitle>
-              <p className="text-sm text-muted-foreground mt-0.5">Andamento degli ultimi 7 giorni</p>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <div style={{ width: "100%", height: "320px", minHeight: "320px" }}>
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData} margin={{ top: 10, right: 20, left: -10, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(180, 12%, 90%)" vertical={false} />
-                <XAxis
-                  dataKey="giorno"
-                  stroke="hsl(200, 10%, 46%)"
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fill: "hsl(200, 10%, 46%)", fontSize: 13 }}
-                  dy={8}
-                />
-                <YAxis
-                  stroke="hsl(200, 10%, 46%)"
-                  axisLine={false}
-                  tickLine={false}
-                  tick={{ fill: "hsl(200, 10%, 46%)", fontSize: 13 }}
-                />
-                <Tooltip
-                  cursor={{ fill: "rgba(20, 184, 166, 0.06)" }}
-                  contentStyle={{
-                    backgroundColor: "white",
-                    borderRadius: "12px",
-                    border: "1px solid hsl(180, 12%, 90%)",
-                    boxShadow: "0 8px 30px rgba(0,0,0,0.08)",
-                    padding: "12px 16px",
-                  }}
-                />
-                <Bar
-                  dataKey="visite"
-                  fill="url(#tealGradient)"
-                  radius={[6, 6, 0, 0]}
-                  animationDuration={800}
-                  maxBarSize={48}
-                />
-                <defs>
-                  <linearGradient id="tealGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="hsl(168, 65%, 45%)" />
-                    <stop offset="100%" stopColor="hsl(168, 50%, 30%)" />
-                  </linearGradient>
-                </defs>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
 
       {/* Recent Patients */}
       <Card className="bg-card rounded-xl shadow-sm border border-border/50 overflow-hidden">
