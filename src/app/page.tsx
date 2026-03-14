@@ -4,40 +4,39 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
-import { Users, Calendar, TrendingUp, UserPlus, Activity, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { Users, Calendar, TrendingUp, UserPlus, Activity, ArrowUpRight } from "lucide-react";
+import Link from "next/link";
 
-// Dati statistiche
 const stats = [
-  { 
-    name: "Pazienti Totali", 
-    value: 142, 
-    icon: Users, 
-    color: "text-blue-600", 
-    bg: "bg-blue-50",
+  {
+    name: "Pazienti Totali",
+    value: 142,
+    icon: Users,
+    color: "text-teal-600",
+    bg: "bg-teal-50",
     trend: "+12%",
-    trendUp: true
+    trendUp: true,
   },
-  { 
-    name: "Appuntamenti Oggi", 
-    value: 8, 
-    icon: Calendar, 
-    color: "text-green-600", 
-    bg: "bg-green-50",
+  {
+    name: "Appuntamenti Oggi",
+    value: 8,
+    icon: Calendar,
+    color: "text-amber-600",
+    bg: "bg-amber-50",
     trend: "3 in attesa",
-    trendUp: null
+    trendUp: null,
   },
-  { 
-    name: "Nuovi Questa Settimana", 
-    value: 12, 
-    icon: TrendingUp, 
-    color: "text-purple-600", 
-    bg: "bg-purple-50",
+  {
+    name: "Nuovi Questa Settimana",
+    value: 12,
+    icon: TrendingUp,
+    color: "text-rose-500",
+    bg: "bg-rose-50",
     trend: "+5",
-    trendUp: true
+    trendUp: true,
   },
 ];
 
-// Dati grafico
 const chartData = [
   { giorno: "Lun", visite: 24 },
   { giorno: "Mar", visite: 18 },
@@ -48,7 +47,6 @@ const chartData = [
   { giorno: "Dom", visite: 8 },
 ];
 
-// Dati pazienti recenti
 const recentPatients = [
   { id: "P001", nome: "Maria Rossi", età: 34, ultimaVisita: "12/03/2026", stato: "Attivo" },
   { id: "P002", nome: "Luca Bianchi", età: 41, ultimaVisita: "10/03/2026", stato: "In attesa" },
@@ -59,109 +57,108 @@ const recentPatients = [
 
 export default function DashboardPage() {
   return (
-    <div className="space-y-8 p-2">
-      {/* Header Pagina */}
+    <div className="space-y-8">
+      {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
-            Dashboard
-          </h1>
-          <p className="text-gray-600 mt-2 text-lg">Panoramica completa della tua clinica</p>
+          <h1 className="text-3xl font-semibold text-foreground tracking-tight">Dashboard</h1>
+          <p className="text-muted-foreground mt-1 text-base">Panoramica completa della tua clinica</p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl shadow-md border border-gray-100">
-            <Activity className="w-5 h-5 text-indigo-600" />
-            <span className="font-semibold text-gray-700">Online</span>
+          <div className="flex items-center gap-2 bg-card px-4 py-2 rounded-xl shadow-sm border border-border/50">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse-soft" />
+            <Activity className="w-4 h-4 text-teal-600" />
+            <span className="text-sm font-medium text-foreground">Online</span>
           </div>
-          <Button className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all transform hover:scale-105">
-            <UserPlus className="w-5 h-5 mr-2" />
-            Nuovo Paziente
-          </Button>
+          <Link href="/patients">
+            <Button className="bg-[hsl(168,65%,38%)] hover:bg-[hsl(168,65%,32%)] text-white font-medium rounded-xl shadow-md hover:shadow-lg transition-all duration-200">
+              <UserPlus className="w-4 h-4 mr-2" />
+              Nuovo Paziente
+            </Button>
+          </Link>
         </div>
       </div>
 
-      {/* Cards Statistiche */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 stagger-children">
         {stats.map((stat) => (
-          <Card key={stat.name} className="shadow-xl border-0 bg-gradient-to-br from-white to-gray-50 hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1">
+          <Card key={stat.name} className="bg-card rounded-xl shadow-sm hover:shadow-md transition-all duration-200 border border-border/50">
             <CardHeader className="flex flex-row items-center justify-between pb-3">
               <div>
-                <CardTitle className="text-sm font-medium text-gray-600 mb-1">
+                <CardTitle className="text-sm font-medium text-muted-foreground mb-1">
                   {stat.name}
                 </CardTitle>
                 <div className="flex items-center gap-1">
-                  {stat.trendUp === true && <ArrowUpRight className="w-4 h-4 text-green-500" />}
-                  {stat.trendUp === false && <ArrowDownRight className="w-4 h-4 text-red-500" />}
-                  <p className={`text-xs ${stat.trendUp === true ? 'text-green-600' : stat.trendUp === false ? 'text-red-600' : 'text-gray-400'}`}>
+                  {stat.trendUp === true && <ArrowUpRight className="w-3.5 h-3.5 text-emerald-500" />}
+                  <p className={`text-xs ${stat.trendUp === true ? "text-emerald-600" : "text-muted-foreground"}`}>
                     {stat.trend}
                   </p>
                 </div>
               </div>
-              <div className={`p-3 rounded-xl ${stat.bg} shadow-sm`}>
-                <stat.icon className={`h-6 w-6 ${stat.color}`} />
+              <div className={`p-3 rounded-xl ${stat.bg}`}>
+                <stat.icon className={`h-5 w-5 ${stat.color}`} />
               </div>
             </CardHeader>
             <CardContent>
-              <div className="text-4xl font-bold text-gray-900">{stat.value}</div>
+              <div className="text-3xl font-bold text-foreground">{stat.value}</div>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Grafico Visite */}
-      <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-gray-50">
-        <CardHeader className="border-b border-gray-100">
+      {/* Chart */}
+      <Card className="bg-card rounded-xl shadow-sm border border-border/50">
+        <CardHeader>
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-indigo-100 rounded-xl">
-              <TrendingUp className="w-6 h-6 text-indigo-600" />
+            <div className="p-2 bg-teal-50 rounded-lg">
+              <TrendingUp className="w-5 h-5 text-teal-600" />
             </div>
             <div>
-              <CardTitle className="text-2xl text-gray-800">Visite Settimanali</CardTitle>
-              <p className="text-sm text-gray-500 mt-1">Andamento delle visite negli ultimi 7 giorni</p>
+              <CardTitle className="text-lg font-semibold text-foreground">Visite Settimanali</CardTitle>
+              <p className="text-sm text-muted-foreground mt-0.5">Andamento degli ultimi 7 giorni</p>
             </div>
           </div>
         </CardHeader>
         <CardContent>
-          {/* Container con dimensioni esplicite per recharts - elimina warning */}
-          <div style={{ width: '100%', height: '350px', minHeight: '350px' }} className="w-full">
+          <div style={{ width: "100%", height: "320px", minHeight: "320px" }}>
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
-                <XAxis 
-                  dataKey="giorno" 
-                  stroke="#6b7280" 
+              <BarChart data={chartData} margin={{ top: 10, right: 20, left: -10, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(180, 12%, 90%)" vertical={false} />
+                <XAxis
+                  dataKey="giorno"
+                  stroke="hsl(200, 10%, 46%)"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: '#6b7280', fontSize: 14 }}
-                  dy={10}
+                  tick={{ fill: "hsl(200, 10%, 46%)", fontSize: 13 }}
+                  dy={8}
                 />
-                <YAxis 
-                  stroke="#6b7280" 
+                <YAxis
+                  stroke="hsl(200, 10%, 46%)"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: '#6b7280', fontSize: 14 }}
+                  tick={{ fill: "hsl(200, 10%, 46%)", fontSize: 13 }}
                 />
                 <Tooltip
-                  cursor={{ fill: 'rgba(99, 102, 241, 0.1)' }}
+                  cursor={{ fill: "rgba(20, 184, 166, 0.06)" }}
                   contentStyle={{
                     backgroundColor: "white",
                     borderRadius: "12px",
-                    border: "none",
-                    boxShadow: "0 10px 40px rgba(0,0,0,0.15)",
-                    padding: "16px",
+                    border: "1px solid hsl(180, 12%, 90%)",
+                    boxShadow: "0 8px 30px rgba(0,0,0,0.08)",
+                    padding: "12px 16px",
                   }}
                 />
-                <Bar 
-                  dataKey="visite" 
-                  fill="url(#colorGradient)" 
-                  radius={[8, 8, 0, 0]}
-                  animationDuration={1000}
-                  maxBarSize={50}
+                <Bar
+                  dataKey="visite"
+                  fill="url(#tealGradient)"
+                  radius={[6, 6, 0, 0]}
+                  animationDuration={800}
+                  maxBarSize={48}
                 />
                 <defs>
-                  <linearGradient id="colorGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#4f46e5" />
-                    <stop offset="100%" stopColor="#7c3aed" />
+                  <linearGradient id="tealGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="hsl(168, 65%, 45%)" />
+                    <stop offset="100%" stopColor="hsl(168, 50%, 30%)" />
                   </linearGradient>
                 </defs>
               </BarChart>
@@ -170,70 +167,67 @@ export default function DashboardPage() {
         </CardContent>
       </Card>
 
-      {/* Tabella Pazienti Recenti */}
-      <Card className="shadow-xl border-0 overflow-hidden">
-        <CardHeader className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 border-b border-gray-100">
+      {/* Recent Patients */}
+      <Card className="bg-card rounded-xl shadow-sm border border-border/50 overflow-hidden">
+        <CardHeader className="bg-teal-50/50">
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-indigo-600 rounded-xl shadow-lg">
-                <Users className="w-6 h-6 text-white" />
+              <div className="p-2 bg-[hsl(168,65%,38%)] rounded-lg">
+                <Users className="w-5 h-5 text-white" />
               </div>
               <div>
-                <CardTitle className="text-2xl text-gray-800">Pazienti Recenti</CardTitle>
-                <p className="text-sm text-gray-500 mt-1">Ultimi pazienti registrati nella clinica</p>
+                <CardTitle className="text-lg font-semibold text-foreground">Pazienti Recenti</CardTitle>
+                <p className="text-sm text-muted-foreground mt-0.5">Ultimi pazienti registrati</p>
               </div>
             </div>
-            <Button variant="outline" className="border-indigo-200 text-indigo-600 hover:bg-indigo-50 rounded-xl">
-              Vedi Tutti
-            </Button>
+            <Link href="/patients">
+              <Button variant="outline" className="border-teal-200 text-teal-700 hover:bg-teal-50 rounded-lg text-sm">
+                Vedi Tutti
+              </Button>
+            </Link>
           </div>
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="bg-gray-50/80 border-b-2 border-gray-200">
-                  <TableHead className="font-bold text-gray-700 px-6 py-4 text-sm uppercase tracking-wide">ID</TableHead>
-                  <TableHead className="font-bold text-gray-700 px-6 py-4 text-sm uppercase tracking-wide">Nome</TableHead>
-                  <TableHead className="font-bold text-gray-700 px-6 py-4 text-sm uppercase tracking-wide">Età</TableHead>
-                  <TableHead className="font-bold text-gray-700 px-6 py-4 text-sm uppercase tracking-wide">Ultima Visita</TableHead>
-                  <TableHead className="font-bold text-gray-700 px-6 py-4 text-sm uppercase tracking-wide">Stato</TableHead>
+                <TableRow className="bg-muted/50">
+                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-semibold px-5 py-3">ID</TableHead>
+                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-semibold px-5 py-3">Nome</TableHead>
+                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-semibold px-5 py-3">Età</TableHead>
+                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-semibold px-5 py-3">Ultima Visita</TableHead>
+                  <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-semibold px-5 py-3">Stato</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {recentPatients.map((p, index) => (
-                  <TableRow 
-                    key={p.id} 
-                    className={`transition-all duration-200 border-b border-gray-100 hover:bg-gradient-to-r hover:from-indigo-50 hover:via-purple-50 hover:to-pink-50 ${
-                      index % 2 === 0 ? 'bg-white' : 'bg-gray-50/30'
-                    }`}
-                  >
-                    <TableCell className="font-mono text-sm font-bold text-indigo-600 px-6 py-4">{p.id}</TableCell>
-                    <TableCell className="font-semibold text-gray-800 px-6 py-4">
+                {recentPatients.map((p) => (
+                  <TableRow key={p.id} className="hover:bg-muted/60 transition-colors duration-150">
+                    <TableCell className="font-mono text-sm font-semibold text-[hsl(168,65%,38%)] px-5 py-3.5">{p.id}</TableCell>
+                    <TableCell className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-400 to-purple-400 flex items-center justify-center text-white text-sm font-bold">
+                        <div className="w-8 h-8 rounded-full bg-[hsl(168,65%,38%)] flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
                           {p.nome.charAt(0)}
                         </div>
-                        {p.nome}
+                        <span className="font-medium text-foreground">{p.nome}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="text-gray-600 px-6 py-4">{p.età} anni</TableCell>
-                    <TableCell className="text-gray-600 px-6 py-4">{p.ultimaVisita}</TableCell>
-                    <TableCell className="px-6 py-4">
+                    <TableCell className="text-muted-foreground px-5 py-3.5">{p.età} anni</TableCell>
+                    <TableCell className="text-muted-foreground px-5 py-3.5">{p.ultimaVisita}</TableCell>
+                    <TableCell className="px-5 py-3.5">
                       <span
-                        className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold ${
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
                           p.stato === "Attivo"
-                            ? "bg-green-100 text-green-700 border border-green-200"
+                            ? "bg-emerald-50 text-emerald-700"
                             : p.stato === "In attesa"
-                            ? "bg-yellow-100 text-yellow-700 border border-yellow-200"
-                            : "bg-gray-100 text-gray-700 border border-gray-200"
+                            ? "bg-amber-50 text-amber-700"
+                            : "bg-gray-100 text-gray-600"
                         }`}
                       >
-                        <span className={`w-2 h-2 rounded-full mr-2 ${
-                          p.stato === "Attivo" ? "bg-green-500" :
-                          p.stato === "In attesa" ? "bg-yellow-500" :
-                          "bg-gray-500"
-                        }`}></span>
+                        <span
+                          className={`w-1.5 h-1.5 rounded-full ${
+                            p.stato === "Attivo" ? "bg-emerald-500" : p.stato === "In attesa" ? "bg-amber-500" : "bg-gray-400"
+                          }`}
+                        />
                         {p.stato}
                       </span>
                     </TableCell>
@@ -246,9 +240,8 @@ export default function DashboardPage() {
       </Card>
 
       {/* Footer */}
-      <footer className="text-center text-gray-500 text-sm pt-8 border-t border-gray-200">
+      <footer className="text-center text-muted-foreground text-xs pt-6">
         <p>© {new Date().getFullYear()} COSMEDIC SW — Gestione clinica intelligente</p>
-        <p className="text-xs mt-1">Versione 1.0.0</p>
       </footer>
     </div>
   );
