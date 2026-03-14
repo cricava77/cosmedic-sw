@@ -31,25 +31,29 @@ const SERVIZI = [
   "Laser",
 ];
 
-const STATUS_CONFIG: Record<AppointmentStatus, { color: string; bg: string; icon: React.ReactNode }> = {
+const STATUS_CONFIG: Record<AppointmentStatus, { color: string; bg: string; dot: string; icon: React.ReactNode }> = {
   "Confermato": {
-    color: "text-green-700",
-    bg: "bg-green-100",
+    color: "text-emerald-700",
+    bg: "bg-emerald-50",
+    dot: "bg-emerald-500",
     icon: <CheckCircle className="w-4 h-4" />,
   },
   "In attesa": {
-    color: "text-yellow-700",
-    bg: "bg-yellow-100",
+    color: "text-amber-700",
+    bg: "bg-amber-50",
+    dot: "bg-amber-500",
     icon: <AlertCircle className="w-4 h-4" />,
   },
   "Annullato": {
-    color: "text-red-700",
-    bg: "bg-red-100",
+    color: "text-red-600",
+    bg: "bg-red-50",
+    dot: "bg-red-500",
     icon: <XCircle className="w-4 h-4" />,
   },
   "Completato": {
     color: "text-blue-700",
-    bg: "bg-blue-100",
+    bg: "bg-blue-50",
+    dot: "bg-blue-500",
     icon: <CheckCircle className="w-4 h-4" />,
   },
 };
@@ -109,173 +113,104 @@ export default function AppointmentsPage() {
   };
 
   return (
-    <div className="space-y-8 p-2">
+    <div className="space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
-            Appuntamenti
-          </h1>
-          <p className="text-gray-600 mt-2 text-lg">Gestisci le prenotazioni della clinica</p>
+          <h1 className="text-3xl font-semibold text-foreground tracking-tight">Appuntamenti</h1>
+          <p className="text-muted-foreground mt-1 text-base">Gestisci le prenotazioni della clinica</p>
         </div>
         <Button
           onClick={() => setShowForm(v => !v)}
-          className="h-12 px-6 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all"
+          className="bg-[hsl(168,65%,38%)] hover:bg-[hsl(168,65%,32%)] text-white font-medium rounded-xl shadow-md hover:shadow-lg transition-all duration-200"
         >
-          <CalendarPlus className="w-5 h-5 mr-2" />
+          <CalendarPlus className="w-4 h-4 mr-2" />
           Nuovo Appuntamento
         </Button>
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 stagger-children">
         {[
-          { label: "Totali", value: counts.totali, icon: <Calendar className="w-6 h-6 text-indigo-600" />, bg: "bg-indigo-50", border: "border-indigo-200" },
-          { label: "Oggi", value: counts.oggi, icon: <Clock className="w-6 h-6 text-purple-600" />, bg: "bg-purple-50", border: "border-purple-200" },
-          { label: "In attesa", value: counts.inAttesa, icon: <AlertCircle className="w-6 h-6 text-yellow-600" />, bg: "bg-yellow-50", border: "border-yellow-200" },
-          { label: "Confermati", value: counts.confermati, icon: <CheckCircle className="w-6 h-6 text-green-600" />, bg: "bg-green-50", border: "border-green-200" },
+          { label: "Totali", value: counts.totali, icon: <Calendar className="w-5 h-5 text-teal-600" />, bg: "bg-teal-50", border: "border-teal-100" },
+          { label: "Oggi", value: counts.oggi, icon: <Clock className="w-5 h-5 text-amber-600" />, bg: "bg-amber-50", border: "border-amber-100" },
+          { label: "In attesa", value: counts.inAttesa, icon: <AlertCircle className="w-5 h-5 text-yellow-600" />, bg: "bg-yellow-50", border: "border-yellow-100" },
+          { label: "Confermati", value: counts.confermati, icon: <CheckCircle className="w-5 h-5 text-emerald-600" />, bg: "bg-emerald-50", border: "border-emerald-100" },
         ].map(s => (
-          <Card key={s.label} className={`shadow-md border ${s.border} ${s.bg}`}>
-            <CardContent className="p-4 flex items-center gap-4">
+          <Card key={s.label} className={`shadow-sm border ${s.border} ${s.bg}/30`}>
+            <CardContent className="p-4 flex items-center gap-3">
               <div className="p-2 bg-white rounded-lg shadow-sm">{s.icon}</div>
               <div>
-                <p className="text-2xl font-bold text-gray-800">{s.value}</p>
-                <p className="text-sm text-gray-500">{s.label}</p>
+                <p className="text-2xl font-bold text-foreground">{s.value}</p>
+                <p className="text-xs text-muted-foreground">{s.label}</p>
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Form Nuovo Appuntamento */}
+      {/* Form */}
       {showForm && (
-        <Card className="shadow-xl border-0 bg-gradient-to-br from-white to-gray-50">
-          <CardHeader className="border-b border-gray-100">
+        <Card className="bg-card rounded-xl shadow-sm border border-border/50 animate-scale-in">
+          <CardHeader>
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-indigo-100 rounded-lg">
-                <CalendarPlus className="w-6 h-6 text-indigo-600" />
+              <div className="p-2 bg-teal-50 rounded-lg">
+                <CalendarPlus className="w-5 h-5 text-teal-600" />
               </div>
-              <CardTitle className="text-2xl text-gray-800">Nuovo Appuntamento</CardTitle>
+              <CardTitle className="text-lg font-semibold text-foreground">Nuovo Appuntamento</CardTitle>
             </div>
           </CardHeader>
-          <CardContent className="pt-6">
-            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Paziente */}
+          <CardContent>
+            <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-2">
-                <Label htmlFor="paziente" className="text-sm font-semibold text-gray-700">Paziente</Label>
+                <Label htmlFor="paziente" className="text-sm font-medium text-foreground">Paziente</Label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <Input
-                    id="paziente"
-                    name="paziente"
-                    value={newAppt.paziente}
-                    onChange={handleChange}
-                    required
-                    placeholder="Nome e cognome"
-                    className="h-12 pl-10 border-gray-200 focus:border-indigo-500 transition-all"
-                  />
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input id="paziente" name="paziente" value={newAppt.paziente} onChange={handleChange} required placeholder="Nome e cognome" className="h-11 pl-10" />
                 </div>
               </div>
-
-              {/* Servizio */}
               <div className="space-y-2">
-                <Label htmlFor="servizio" className="text-sm font-semibold text-gray-700">Servizio</Label>
-                <select
-                  id="servizio"
-                  name="servizio"
-                  value={newAppt.servizio}
-                  onChange={handleChange}
-                  required
-                  className="h-12 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
-                >
-                  {SERVIZI.map(s => (
-                    <option key={s} value={s}>{s}</option>
-                  ))}
+                <Label htmlFor="servizio" className="text-sm font-medium text-foreground">Servizio</Label>
+                <select id="servizio" name="servizio" value={newAppt.servizio} onChange={handleChange} required
+                  className="h-11 w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus:outline-none focus:border-ring focus:ring-1 focus:ring-ring/50 transition-all">
+                  {SERVIZI.map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>
-
-              {/* Data */}
               <div className="space-y-2">
-                <Label htmlFor="data" className="text-sm font-semibold text-gray-700">Data</Label>
+                <Label htmlFor="data" className="text-sm font-medium text-foreground">Data</Label>
                 <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <Input
-                    id="data"
-                    name="data"
-                    type="date"
-                    value={newAppt.data}
-                    onChange={handleChange}
-                    required
-                    className="h-12 pl-10 border-gray-200 focus:border-indigo-500 transition-all"
-                  />
+                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input id="data" name="data" type="date" value={newAppt.data} onChange={handleChange} required className="h-11 pl-10" />
                 </div>
               </div>
-
-              {/* Orario */}
               <div className="space-y-2">
-                <Label htmlFor="orario" className="text-sm font-semibold text-gray-700">Orario</Label>
+                <Label htmlFor="orario" className="text-sm font-medium text-foreground">Orario</Label>
                 <div className="relative">
-                  <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <Input
-                    id="orario"
-                    name="orario"
-                    type="time"
-                    value={newAppt.orario}
-                    onChange={handleChange}
-                    required
-                    className="h-12 pl-10 border-gray-200 focus:border-indigo-500 transition-all"
-                  />
+                  <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input id="orario" name="orario" type="time" value={newAppt.orario} onChange={handleChange} required className="h-11 pl-10" />
                 </div>
               </div>
-
-              {/* Stato */}
               <div className="space-y-2">
-                <Label htmlFor="stato" className="text-sm font-semibold text-gray-700">Stato</Label>
-                <select
-                  id="stato"
-                  name="stato"
-                  value={newAppt.stato}
-                  onChange={handleChange}
-                  className="h-12 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all"
-                >
-                  {(["In attesa", "Confermato", "Annullato", "Completato"] as AppointmentStatus[]).map(s => (
-                    <option key={s} value={s}>{s}</option>
-                  ))}
+                <Label htmlFor="stato" className="text-sm font-medium text-foreground">Stato</Label>
+                <select id="stato" name="stato" value={newAppt.stato} onChange={handleChange}
+                  className="h-11 w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus:outline-none focus:border-ring focus:ring-1 focus:ring-ring/50 transition-all">
+                  {(["In attesa", "Confermato", "Annullato", "Completato"] as AppointmentStatus[]).map(s => <option key={s} value={s}>{s}</option>)}
                 </select>
               </div>
-
-              {/* Note */}
               <div className="space-y-2">
-                <Label htmlFor="note" className="text-sm font-semibold text-gray-700">Note</Label>
+                <Label htmlFor="note" className="text-sm font-medium text-foreground">Note</Label>
                 <div className="relative">
-                  <FileText className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
-                  <textarea
-                    id="note"
-                    name="note"
-                    value={newAppt.note}
-                    onChange={handleChange}
-                    rows={2}
-                    placeholder="Note aggiuntive..."
-                    className="w-full rounded-md border border-gray-200 bg-white pl-10 pr-3 py-2 text-sm focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition-all resize-none"
-                  />
+                  <FileText className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
+                  <textarea id="note" name="note" value={newAppt.note} onChange={handleChange} rows={2} placeholder="Note aggiuntive..."
+                    className="w-full rounded-md border border-input bg-white pl-10 pr-3 py-2 text-sm focus:outline-none focus:border-ring focus:ring-1 focus:ring-ring/50 transition-all resize-none" />
                 </div>
               </div>
-
-              {/* Buttons */}
               <div className="md:col-span-2 flex gap-3">
-                <Button
-                  type="submit"
-                  className="h-12 px-8 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all"
-                >
-                  <CalendarPlus className="w-5 h-5 mr-2" />
+                <Button type="submit" className="h-11 px-6 bg-[hsl(168,65%,38%)] hover:bg-[hsl(168,65%,32%)] text-white font-medium rounded-xl shadow-md hover:shadow-lg transition-all duration-200">
+                  <CalendarPlus className="w-4 h-4 mr-2" />
                   Salva Appuntamento
                 </Button>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => setShowForm(false)}
-                  className="h-12 px-6 rounded-xl"
-                >
+                <Button type="button" variant="outline" onClick={() => setShowForm(false)} className="h-11 px-5 rounded-xl">
                   Annulla
                 </Button>
               </div>
@@ -284,25 +219,25 @@ export default function AppointmentsPage() {
         </Card>
       )}
 
-      {/* Filtri */}
-      <div className="flex items-center gap-3 flex-wrap">
-        <div className="flex items-center gap-2 text-gray-600">
+      {/* Filters */}
+      <div className="flex items-center gap-2.5 flex-wrap">
+        <div className="flex items-center gap-1.5 text-muted-foreground mr-1">
           <Filter className="w-4 h-4" />
-          <span className="text-sm font-semibold">Filtra:</span>
+          <span className="text-xs font-semibold uppercase tracking-wider">Filtra</span>
         </div>
         {(["Tutti", "Confermato", "In attesa", "Completato", "Annullato"] as const).map(stato => (
           <button
             key={stato}
             onClick={() => setFiltroStato(stato)}
-            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
+            className={`px-3.5 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
               filtroStato === stato
-                ? "bg-indigo-600 text-white shadow-md"
-                : "bg-white text-gray-600 border border-gray-200 hover:border-indigo-300"
+                ? "bg-[hsl(168,65%,38%)] text-white shadow-sm"
+                : "bg-card text-muted-foreground border border-border/50 hover:border-teal-300 hover:text-foreground"
             }`}
           >
             {stato}
             {stato !== "Tutti" && (
-              <span className="ml-1.5 text-xs opacity-75">
+              <span className="ml-1 text-xs opacity-70">
                 ({appointments.filter(a => a.stato === stato).length})
               </span>
             )}
@@ -310,77 +245,80 @@ export default function AppointmentsPage() {
         ))}
       </div>
 
-      {/* Tabella Appuntamenti */}
-      <Card className="shadow-xl border-0 overflow-hidden">
-        <CardHeader className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-gray-100">
+      {/* Table */}
+      <Card className="bg-card rounded-xl shadow-sm border border-border/50 overflow-hidden">
+        <CardHeader className="bg-teal-50/50">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-indigo-600 rounded-lg">
-                <Calendar className="w-6 h-6 text-white" />
+              <div className="p-2 bg-[hsl(168,65%,38%)] rounded-lg">
+                <Calendar className="w-5 h-5 text-white" />
               </div>
-              <CardTitle className="text-2xl text-gray-800">Elenco Appuntamenti</CardTitle>
+              <CardTitle className="text-lg font-semibold text-foreground">Elenco Appuntamenti</CardTitle>
             </div>
-            <span className="text-sm text-gray-500">{filtered.length} risultati</span>
+            <span className="text-sm text-muted-foreground">{filtered.length} risultati</span>
           </div>
         </CardHeader>
         <CardContent className="p-0">
           {filtered.length === 0 ? (
-            <div className="text-center py-16 text-gray-400">
-              <Calendar className="w-12 h-12 mx-auto mb-3 opacity-30" />
-              <p className="text-lg font-medium">Nessun appuntamento trovato</p>
+            <div className="text-center py-16 animate-fade-in">
+              <Calendar className="w-16 h-16 mx-auto mb-4 text-muted-foreground/20" />
+              <p className="text-lg font-medium text-muted-foreground">Nessun appuntamento trovato</p>
+              <p className="text-sm text-muted-foreground/60 mt-1">Prova a modificare i filtri o aggiungi un nuovo appuntamento</p>
             </div>
           ) : (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
-                  <TableRow className="bg-gray-50 border-b-2 border-gray-200">
-                    <TableHead className="font-bold text-gray-700 px-6 py-4">ID</TableHead>
-                    <TableHead className="font-bold text-gray-700 px-6 py-4">Paziente</TableHead>
-                    <TableHead className="font-bold text-gray-700 px-6 py-4">Data</TableHead>
-                    <TableHead className="font-bold text-gray-700 px-6 py-4">Orario</TableHead>
-                    <TableHead className="font-bold text-gray-700 px-6 py-4">Servizio</TableHead>
-                    <TableHead className="font-bold text-gray-700 px-6 py-4">Note</TableHead>
-                    <TableHead className="font-bold text-gray-700 px-6 py-4">Stato</TableHead>
-                    <TableHead className="font-bold text-gray-700 px-6 py-4">Azioni</TableHead>
+                  <TableRow className="bg-muted/50">
+                    <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-semibold px-5 py-3">ID</TableHead>
+                    <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-semibold px-5 py-3">Paziente</TableHead>
+                    <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-semibold px-5 py-3">Data</TableHead>
+                    <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-semibold px-5 py-3">Orario</TableHead>
+                    <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-semibold px-5 py-3">Servizio</TableHead>
+                    <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-semibold px-5 py-3">Note</TableHead>
+                    <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-semibold px-5 py-3">Stato</TableHead>
+                    <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-semibold px-5 py-3">Azioni</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filtered
-                    .sort((a, b) => `${a.data}${a.orario}` > `${b.data}${b.orario}` ? 1 : -1)
-                    .map((appt, index) => {
+                    .sort((a, b) => `${a.data}${a.orario}`.localeCompare(`${b.data}${b.orario}`))
+                    .map((appt) => {
                       const sc = STATUS_CONFIG[appt.stato];
                       const isToday = appt.data === today;
                       return (
-                        <TableRow
-                          key={appt.id}
-                          className={`hover:bg-gradient-to-r hover:from-indigo-50 hover:to-purple-50 transition-all border-b border-gray-100 ${
-                            index % 2 === 0 ? "bg-white" : "bg-gray-50/50"
-                          }`}
-                        >
-                          <TableCell className="font-mono text-sm font-semibold text-indigo-600 px-6 py-4">{appt.id}</TableCell>
-                          <TableCell className="font-semibold text-gray-800 px-6 py-4">{appt.paziente}</TableCell>
-                          <TableCell className="px-6 py-4">
-                            <span className={`text-sm ${isToday ? "font-bold text-indigo-600" : "text-gray-600"}`}>
+                        <TableRow key={appt.id} className="hover:bg-muted/60 transition-colors duration-150">
+                          <TableCell className="font-mono text-sm font-semibold text-[hsl(168,65%,38%)] px-5 py-3.5">{appt.id}</TableCell>
+                          <TableCell className="px-5 py-3.5">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 rounded-full bg-[hsl(168,65%,38%)] flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
+                                {appt.paziente.charAt(0)}
+                              </div>
+                              <span className="font-medium text-foreground">{appt.paziente}</span>
+                            </div>
+                          </TableCell>
+                          <TableCell className="px-5 py-3.5">
+                            <span className={`text-sm ${isToday ? "font-semibold text-foreground" : "text-muted-foreground"}`}>
                               {new Date(appt.data + "T00:00:00").toLocaleDateString("it-IT")}
-                              {isToday && <span className="ml-1 text-xs bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded">Oggi</span>}
+                              {isToday && <span className="ml-1.5 text-[10px] bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded font-medium">Oggi</span>}
                             </span>
                           </TableCell>
-                          <TableCell className="text-gray-600 px-6 py-4">{appt.orario}</TableCell>
-                          <TableCell className="text-gray-700 px-6 py-4">
-                            <span className="bg-gray-100 text-gray-700 text-xs font-medium px-2.5 py-1 rounded-full">{appt.servizio}</span>
+                          <TableCell className="text-muted-foreground px-5 py-3.5">{appt.orario}</TableCell>
+                          <TableCell className="px-5 py-3.5">
+                            <span className="bg-muted text-foreground text-xs font-medium px-2.5 py-1 rounded-full">{appt.servizio}</span>
                           </TableCell>
-                          <TableCell className="text-gray-500 px-6 py-4 text-sm max-w-[150px] truncate">{appt.note || "—"}</TableCell>
-                          <TableCell className="px-6 py-4">
-                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${sc.bg} ${sc.color}`}>
-                              {sc.icon}
+                          <TableCell className="text-muted-foreground px-5 py-3.5 text-sm max-w-[140px] truncate">{appt.note || "—"}</TableCell>
+                          <TableCell className="px-5 py-3.5">
+                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${sc.bg} ${sc.color}`}>
+                              <span className={`w-1.5 h-1.5 rounded-full ${sc.dot}`} />
                               {appt.stato}
                             </span>
                           </TableCell>
-                          <TableCell className="px-6 py-4">
+                          <TableCell className="px-5 py-3.5">
                             <select
                               value={appt.stato}
                               onChange={e => handleStatusChange(appt.id, e.target.value as AppointmentStatus)}
-                              className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:border-indigo-400 cursor-pointer"
+                              className="text-xs border border-border rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:border-teal-400 cursor-pointer transition-colors"
                             >
                               {(["In attesa", "Confermato", "Completato", "Annullato"] as AppointmentStatus[]).map(s => (
                                 <option key={s} value={s}>{s}</option>
