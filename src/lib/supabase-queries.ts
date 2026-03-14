@@ -4,7 +4,7 @@ import type { PatientInsert, AppointmentInsert, AppointmentStatus } from "./data
 // ─── Patients ────────────────────────────────────────────
 
 export async function getPatients() {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from("patients")
     .select("*")
     .order("created_at", { ascending: false });
@@ -13,7 +13,7 @@ export async function getPatients() {
 }
 
 export async function addPatient(patient: PatientInsert) {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from("patients")
     .insert(patient)
     .select()
@@ -30,7 +30,7 @@ export async function deletePatient(id: string) {
 // ─── Appointments ────────────────────────────────────────
 
 export async function getAppointments() {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from("appointments")
     .select("*, patients(id, nome, cognome)")
     .order("data", { ascending: true })
@@ -40,7 +40,7 @@ export async function getAppointments() {
 }
 
 export async function addAppointment(appointment: AppointmentInsert) {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from("appointments")
     .insert(appointment)
     .select("*, patients(id, nome, cognome)")
@@ -50,7 +50,7 @@ export async function addAppointment(appointment: AppointmentInsert) {
 }
 
 export async function updateAppointmentStatus(id: string, stato: AppointmentStatus) {
-  const { error } = await supabase
+  const { error } = await getSupabase()
     .from("appointments")
     .update({ stato })
     .eq("id", id);
@@ -82,7 +82,7 @@ export async function getDashboardStats() {
 }
 
 export async function getRecentPatients() {
-  const { data, error } = await supabase
+  const { data, error } = await getSupabase()
     .from("patients")
     .select("*")
     .order("created_at", { ascending: false })
