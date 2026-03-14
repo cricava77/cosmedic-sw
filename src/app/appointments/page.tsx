@@ -1,83 +1,59 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { CalendarPlus, Calendar, Clock, User, FileText, CheckCircle, XCircle, AlertCircle, Filter } from "lucide-react";
-
-type AppointmentStatus = "Confermato" | "In attesa" | "Annullato" | "Completato";
-
-interface Appointment {
-  id: string;
-  paziente: string;
-  data: string;
-  orario: string;
-  servizio: string;
-  note: string;
-  stato: AppointmentStatus;
-}
+import { CalendarPlus, Calendar, Clock, FileText, CheckCircle, XCircle, AlertCircle, Filter, Trash2, Loader2 } from "lucide-react";
+import { getAppointments, addAppointment, updateAppointmentStatus, deleteAppointment, getPatients } from "@/lib/supabase-queries";
+import type { Patient, AppointmentStatus, AppointmentWithPatient, AppointmentInsert } from "@/lib/database.types";
 
 const SERVIZI = [
-  "Consulenza",
-  "Pulizia profonda",
-  "Trattamento viso",
-  "Peeling chimico",
-  "Botox",
-  "Filler",
-  "Massaggio rilassante",
-  "Laser",
+  "Consulenza", "Pulizia profonda", "Trattamento viso", "Peeling chimico",
+  "Botox", "Filler", "Massaggio rilassante", "Laser",
 ];
 
-const STATUS_CONFIG: Record<AppointmentStatus, { color: string; bg: string; dot: string; icon: React.ReactNode }> = {
-  "Confermato": {
-    color: "text-emerald-700",
-    bg: "bg-emerald-50",
-    dot: "bg-emerald-500",
-    icon: <CheckCircle className="w-4 h-4" />,
-  },
-  "In attesa": {
-    color: "text-amber-700",
-    bg: "bg-amber-50",
-    dot: "bg-amber-500",
-    icon: <AlertCircle className="w-4 h-4" />,
-  },
-  "Annullato": {
-    color: "text-red-600",
-    bg: "bg-red-50",
-    dot: "bg-red-500",
-    icon: <XCircle className="w-4 h-4" />,
-  },
-  "Completato": {
-    color: "text-blue-700",
-    bg: "bg-blue-50",
-    dot: "bg-blue-500",
-    icon: <CheckCircle className="w-4 h-4" />,
-  },
+const STATUS_CONFIG: Record<AppointmentStatus, { color: string; bg: string; dot: string }> = {
+  "Confermato": { color: "text-emerald-700", bg: "bg-emerald-50", dot: "bg-emerald-500" },
+  "In attesa": { color: "text-amber-700", bg: "bg-amber-50", dot: "bg-amber-500" },
+  "Annullato": { color: "text-red-600", bg: "bg-red-50", dot: "bg-red-500" },
+  "Completato": { color: "text-blue-700", bg: "bg-blue-50", dot: "bg-blue-500" },
 };
 
-const INITIAL_APPOINTMENTS: Appointment[] = [
-  { id: "A001", paziente: "Maria Rossi", data: "2026-03-14", orario: "09:00", servizio: "Pulizia profonda", note: "Prima visita", stato: "Confermato" },
-  { id: "A002", paziente: "Luca Bianchi", data: "2026-03-14", orario: "10:30", servizio: "Consulenza", note: "", stato: "In attesa" },
-  { id: "A003", paziente: "Giulia Verdi", data: "2026-03-15", orario: "14:00", servizio: "Peeling chimico", note: "Allergie: nichel", stato: "Confermato" },
-  { id: "A004", paziente: "Carlo Neri", data: "2026-03-13", orario: "11:00", servizio: "Trattamento viso", note: "", stato: "Completato" },
-  { id: "A005", paziente: "Anna Ferrari", data: "2026-03-16", orario: "15:30", servizio: "Massaggio rilassante", note: "Preferisce stanza silenziosa", stato: "In attesa" },
-];
-
 export default function AppointmentsPage() {
-  const [appointments, setAppointments] = useState<Appointment[]>(INITIAL_APPOINTMENTS);
+  const [appointments, setAppointments] = useState<AppointmentWithPatient[]>([]);
+  const [patients, setPatients] = useState<Patient[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [filtroStato, setFiltroStato] = useState<AppointmentStatus | "Tutti">("Tutti");
   const [showForm, setShowForm] = useState(false);
-  const [newAppt, setNewAppt] = useState<Omit<Appointment, "id">>({
-    paziente: "",
+  const [newAppt, setNewAppt] = useState<AppointmentInsert>({
+    patient_id: "",
     data: "",
     orario: "",
     servizio: SERVIZI[0],
     note: "",
     stato: "In attesa",
   });
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  async function loadData() {
+    try {
+      setLoading(true);
+      const [apptData, patientData] = await Promise.all([getAppointments(), getPatients()]);
+      setAppointments(apptData as AppointmentWithPatient[]);
+      setPatients(patientData);
+    } catch (err) {
+      console.error("Errore caricamento:", err);
+    } finally {
+      setLoading(false);
+    }
+  }
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -97,20 +73,52 @@ export default function AppointmentsPage() {
     setNewAppt(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const appt: Appointment = {
-      ...newAppt,
-      id: `A${(appointments.length + 1).toString().padStart(3, "0")}`,
-    };
-    setAppointments(prev => [appt, ...prev]);
-    setNewAppt({ paziente: "", data: "", orario: "", servizio: SERVIZI[0], note: "", stato: "In attesa" });
-    setShowForm(false);
+    try {
+      setSaving(true);
+      const saved = await addAppointment(newAppt);
+      setAppointments(prev => [...prev, saved as AppointmentWithPatient]);
+      setNewAppt({ patient_id: "", data: "", orario: "", servizio: SERVIZI[0], note: "", stato: "In attesa" });
+      setShowForm(false);
+    } catch (err) {
+      console.error("Errore salvataggio appuntamento:", err);
+    } finally {
+      setSaving(false);
+    }
   };
 
-  const handleStatusChange = (id: string, stato: AppointmentStatus) => {
-    setAppointments(prev => prev.map(a => a.id === id ? { ...a, stato } : a));
+  const handleStatusChange = async (id: string, stato: AppointmentStatus) => {
+    try {
+      await updateAppointmentStatus(id, stato);
+      setAppointments(prev => prev.map(a => a.id === id ? { ...a, stato } : a));
+    } catch (err) {
+      console.error("Errore aggiornamento stato:", err);
+    }
   };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm("Sei sicuro di voler eliminare questo appuntamento?")) return;
+    try {
+      await deleteAppointment(id);
+      setAppointments(prev => prev.filter(a => a.id !== id));
+    } catch (err) {
+      console.error("Errore eliminazione:", err);
+    }
+  };
+
+  const getPatientName = (appt: AppointmentWithPatient) => {
+    if (appt.patients) return `${appt.patients.nome} ${appt.patients.cognome}`;
+    return "—";
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 text-teal-600 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
@@ -163,11 +171,12 @@ export default function AppointmentsPage() {
           <CardContent>
             <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-2">
-                <Label htmlFor="paziente" className="text-sm font-medium text-foreground">Paziente</Label>
-                <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input id="paziente" name="paziente" value={newAppt.paziente} onChange={handleChange} required placeholder="Nome e cognome" className="h-11 pl-10" />
-                </div>
+                <Label htmlFor="patient_id" className="text-sm font-medium text-foreground">Paziente</Label>
+                <select id="patient_id" name="patient_id" value={newAppt.patient_id} onChange={handleChange} required
+                  className="h-11 w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus:outline-none focus:border-ring focus:ring-1 focus:ring-ring/50 transition-all">
+                  <option value="">Seleziona paziente...</option>
+                  {patients.map(p => <option key={p.id} value={p.id}>{p.nome} {p.cognome}</option>)}
+                </select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="servizio" className="text-sm font-medium text-foreground">Servizio</Label>
@@ -190,14 +199,7 @@ export default function AppointmentsPage() {
                   <Input id="orario" name="orario" type="time" value={newAppt.orario} onChange={handleChange} required className="h-11 pl-10" />
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="stato" className="text-sm font-medium text-foreground">Stato</Label>
-                <select id="stato" name="stato" value={newAppt.stato} onChange={handleChange}
-                  className="h-11 w-full rounded-md border border-input bg-white px-3 py-2 text-sm focus:outline-none focus:border-ring focus:ring-1 focus:ring-ring/50 transition-all">
-                  {(["In attesa", "Confermato", "Annullato", "Completato"] as AppointmentStatus[]).map(s => <option key={s} value={s}>{s}</option>)}
-                </select>
-              </div>
-              <div className="space-y-2">
+              <div className="space-y-2 md:col-span-2">
                 <Label htmlFor="note" className="text-sm font-medium text-foreground">Note</Label>
                 <div className="relative">
                   <FileText className="absolute left-3 top-3 w-4 h-4 text-muted-foreground" />
@@ -206,9 +208,10 @@ export default function AppointmentsPage() {
                 </div>
               </div>
               <div className="md:col-span-2 flex gap-3">
-                <Button type="submit" className="h-11 px-6 bg-[hsl(168,65%,38%)] hover:bg-[hsl(168,65%,32%)] text-white font-medium rounded-xl shadow-md hover:shadow-lg transition-all duration-200">
-                  <CalendarPlus className="w-4 h-4 mr-2" />
-                  Salva Appuntamento
+                <Button type="submit" disabled={saving}
+                  className="h-11 px-6 bg-[hsl(168,65%,38%)] hover:bg-[hsl(168,65%,32%)] text-white font-medium rounded-xl shadow-md hover:shadow-lg transition-all duration-200">
+                  {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CalendarPlus className="w-4 h-4 mr-2" />}
+                  {saving ? "Salvataggio..." : "Salva Appuntamento"}
                 </Button>
                 <Button type="button" variant="outline" onClick={() => setShowForm(false)} className="h-11 px-5 rounded-xl">
                   Annulla
@@ -226,20 +229,15 @@ export default function AppointmentsPage() {
           <span className="text-xs font-semibold uppercase tracking-wider">Filtra</span>
         </div>
         {(["Tutti", "Confermato", "In attesa", "Completato", "Annullato"] as const).map(stato => (
-          <button
-            key={stato}
-            onClick={() => setFiltroStato(stato)}
+          <button key={stato} onClick={() => setFiltroStato(stato)}
             className={`px-3.5 py-1.5 rounded-full text-sm font-medium transition-all duration-200 ${
               filtroStato === stato
                 ? "bg-[hsl(168,65%,38%)] text-white shadow-sm"
                 : "bg-card text-muted-foreground border border-border/50 hover:border-teal-300 hover:text-foreground"
-            }`}
-          >
+            }`}>
             {stato}
             {stato !== "Tutti" && (
-              <span className="ml-1 text-xs opacity-70">
-                ({appointments.filter(a => a.stato === stato).length})
-              </span>
+              <span className="ml-1 text-xs opacity-70">({appointments.filter(a => a.stato === stato).length})</span>
             )}
           </button>
         ))}
@@ -270,7 +268,6 @@ export default function AppointmentsPage() {
               <Table>
                 <TableHeader>
                   <TableRow className="bg-muted/50">
-                    <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-semibold px-5 py-3">ID</TableHead>
                     <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-semibold px-5 py-3">Paziente</TableHead>
                     <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-semibold px-5 py-3">Data</TableHead>
                     <TableHead className="text-xs uppercase tracking-wider text-muted-foreground font-semibold px-5 py-3">Orario</TableHead>
@@ -281,53 +278,46 @@ export default function AppointmentsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filtered
-                    .sort((a, b) => `${a.data}${a.orario}`.localeCompare(`${b.data}${b.orario}`))
-                    .map((appt) => {
-                      const sc = STATUS_CONFIG[appt.stato];
-                      const isToday = appt.data === today;
-                      return (
-                        <TableRow key={appt.id} className="hover:bg-muted/60 transition-colors duration-150">
-                          <TableCell className="font-mono text-sm font-semibold text-[hsl(168,65%,38%)] px-5 py-3.5">{appt.id}</TableCell>
-                          <TableCell className="px-5 py-3.5">
-                            <div className="flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-full bg-[hsl(168,65%,38%)] flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
-                                {appt.paziente.charAt(0)}
-                              </div>
-                              <span className="font-medium text-foreground">{appt.paziente}</span>
+                  {filtered.map((appt) => {
+                    const sc = STATUS_CONFIG[appt.stato];
+                    const isToday = appt.data === today;
+                    const name = getPatientName(appt);
+                    return (
+                      <TableRow key={appt.id} className="hover:bg-muted/60 transition-colors duration-150">
+                        <TableCell className="px-5 py-3.5">
+                          <div className="flex items-center gap-3">
+                            <div className="w-8 h-8 rounded-full bg-[hsl(168,65%,38%)] flex items-center justify-center text-white text-xs font-semibold flex-shrink-0">
+                              {name.charAt(0)}
                             </div>
-                          </TableCell>
-                          <TableCell className="px-5 py-3.5">
-                            <span className={`text-sm ${isToday ? "font-semibold text-foreground" : "text-muted-foreground"}`}>
-                              {new Date(appt.data + "T00:00:00").toLocaleDateString("it-IT")}
-                              {isToday && <span className="ml-1.5 text-[10px] bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded font-medium">Oggi</span>}
-                            </span>
-                          </TableCell>
-                          <TableCell className="text-muted-foreground px-5 py-3.5">{appt.orario}</TableCell>
-                          <TableCell className="px-5 py-3.5">
-                            <span className="bg-muted text-foreground text-xs font-medium px-2.5 py-1 rounded-full">{appt.servizio}</span>
-                          </TableCell>
-                          <TableCell className="text-muted-foreground px-5 py-3.5 text-sm max-w-[140px] truncate">{appt.note || "—"}</TableCell>
-                          <TableCell className="px-5 py-3.5">
-                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${sc.bg} ${sc.color}`}>
-                              <span className={`w-1.5 h-1.5 rounded-full ${sc.dot}`} />
-                              {appt.stato}
-                            </span>
-                          </TableCell>
-                          <TableCell className="px-5 py-3.5">
-                            <select
-                              value={appt.stato}
-                              onChange={e => handleStatusChange(appt.id, e.target.value as AppointmentStatus)}
-                              className="text-xs border border-border rounded-lg px-2 py-1.5 bg-white focus:outline-none focus:border-teal-400 cursor-pointer transition-colors"
-                            >
-                              {(["In attesa", "Confermato", "Completato", "Annullato"] as AppointmentStatus[]).map(s => (
-                                <option key={s} value={s}>{s}</option>
-                              ))}
-                            </select>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
+                            <span className="font-medium text-foreground">{name}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="px-5 py-3.5">
+                          <span className={`text-sm ${isToday ? "font-semibold text-foreground" : "text-muted-foreground"}`}>
+                            {new Date(appt.data + "T00:00:00").toLocaleDateString("it-IT")}
+                            {isToday && <span className="ml-1.5 text-[10px] bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded font-medium">Oggi</span>}
+                          </span>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground px-5 py-3.5">{appt.orario?.slice(0, 5)}</TableCell>
+                        <TableCell className="px-5 py-3.5">
+                          <span className="bg-muted text-foreground text-xs font-medium px-2.5 py-1 rounded-full">{appt.servizio}</span>
+                        </TableCell>
+                        <TableCell className="text-muted-foreground px-5 py-3.5 text-sm max-w-[140px] truncate">{appt.note || "—"}</TableCell>
+                        <TableCell className="px-5 py-3.5">
+                          <select value={appt.stato} onChange={e => handleStatusChange(appt.id, e.target.value as AppointmentStatus)}
+                            className={`text-xs border rounded-lg px-2 py-1.5 focus:outline-none focus:border-teal-400 cursor-pointer transition-colors ${sc.bg} ${sc.color} border-transparent`}>
+                            {(["In attesa", "Confermato", "Completato", "Annullato"] as AppointmentStatus[]).map(s => <option key={s} value={s}>{s}</option>)}
+                          </select>
+                        </TableCell>
+                        <TableCell className="px-5 py-3.5">
+                          <button onClick={() => handleDelete(appt.id)}
+                            className="text-muted-foreground/50 hover:text-red-500 transition-colors p-1 rounded" title="Elimina">
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>
